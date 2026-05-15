@@ -1,11 +1,10 @@
-"use client";
-import { useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { CANALES_VENTA, ESTADOS_PAGO, ESTADOS_PRODUCCION, PIELES, PRIORIDADES, TAMANOS } from "@/lib/constants";
-const field = "w-full rounded-xl border border-rose/20 bg-white p-2";
-export default function NuevoPedidoPage() { const search = useSearchParams(); const router = useRouter(); const today = new Date().toISOString().slice(0, 10);
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<Record<string, string>>({ pedido_id: `KRO-${Date.now().toString().slice(-6)}`, fecha_pedido: today, fecha_entrega: search.get("fecha") || today, cliente: "", telefono: "", instagram: "", canal_venta: "WhatsApp", titulo_ramo: "", tamano: '10"', piel: "Normal", color_vestido: "", garbanzo: "No", cabello: "", rosas: "", detalles_adicionales: "", anticipo: "0", total: "0", estado_pago: "Sin anticipo", estado_produccion: "Nuevo pedido", prioridad: "Normal", fotos_referencia: "", responsable: "", notas_internas: "" });
-  const pendiente = useMemo(() => Number(form.total || 0) - Number(form.anticipo || 0), [form]);
-  async function submit(e: React.FormEvent) { e.preventDefault(); setLoading(true); const res = await fetch("/api/pedidos", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, garbanzo: form.garbanzo === "Sí", anticipo: Number(form.anticipo), total: Number(form.total) }) }); setLoading(false); if (res.ok) router.push("/tabla"); else alert(await res.text()); }
-  return <form onSubmit={submit} className="space-y-4 rounded-2xl bg-white p-4 border border-rose/10 shadow-sm"><h2 className="text-lg font-semibold">Nuevo pedido</h2><div className="grid grid-cols-1 md:grid-cols-2 gap-3">{Object.entries(form).map(([k,v])=> (["canal_venta","tamano","piel","garbanzo","estado_pago","estado_produccion","prioridad"].includes(k)?null:<input key={k} value={v} onChange={(e)=>setForm({...form,[k]:e.target.value})} placeholder={k} className={field}/>))}{[["canal_venta",CANALES_VENTA],["tamano",TAMANOS],["piel",PIELES],["garbanzo",["Sí","No"]],["estado_pago",ESTADOS_PAGO],["estado_produccion",ESTADOS_PRODUCCION],["prioridad",PRIORIDADES]].map(([k,opts])=><select key={k as string} value={form[k as string]} onChange={(e)=>setForm({...form,[k as string]:e.target.value})} className={field}>{(opts as string[]).map((o)=><option key={o}>{o}</option>)}</select>)}</div><p className="text-sm text-mauve">Pendiente calculado: ${pendiente.toFixed(2)}</p><button disabled={loading} type="submit" className="rounded-xl bg-rose px-4 py-2 text-white">{loading?"Guardando...":"Guardar pedido"}</button></form>; }
+import { Suspense } from "react";
+import NuevoPedidoForm from "./NuevoPedidoForm";
+
+export default function NuevoPedidoPage() {
+  return (
+    <Suspense fallback={<div className="rounded-2xl bg-white p-4 border border-rose/10">Cargando formulario...</div>}>
+      <NuevoPedidoForm />
+    </Suspense>
+  );
+}
