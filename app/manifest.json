@@ -1,0 +1,9 @@
+{
+  "name": "Krosha Pedidos",
+  "short_name": "Krosha",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9EEF3",
+  "theme_color": "#E9709B",
+  "icons": []
+}
